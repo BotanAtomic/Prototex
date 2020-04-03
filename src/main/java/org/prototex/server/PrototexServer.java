@@ -1,4 +1,4 @@
-package org.prototex.server.core;
+package org.prototex.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -7,8 +7,10 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.event.EventManager;
 import org.prototex.handler.SocketChannelInitializer;
+import org.prototex.packet.PacketRegistry;
 
 import java.net.InetSocketAddress;
 
@@ -17,27 +19,29 @@ import java.net.InetSocketAddress;
 @Data
 public class PrototexServer extends EventManager {
 
-    private final PrototexServerConfiguration configuration;
+    private final PrototexConfiguration configuration;
 
     private final ServerBootstrap serverBootstrap;
 
+    private final PacketRegistry packetRegistry = new PacketRegistry();
+
     private ChannelFuture channelFuture;
 
-    public PrototexServer(PrototexServerConfiguration configuration, ServerBootstrap serverBootstrap) {
+        public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
         this.configuration = configuration;
         this.serverBootstrap = serverBootstrap;
     }
 
     public PrototexServer(ServerBootstrap serverBootstrap) {
-        this(PrototexServerConfiguration.empty(), serverBootstrap);
+        this(PrototexConfiguration.empty(), serverBootstrap);
     }
 
-    public PrototexServer(PrototexServerConfiguration configuration) {
+    public PrototexServer(PrototexConfiguration configuration) {
         this(configuration, new ServerBootstrap());
     }
 
     public PrototexServer() {
-        this(PrototexServerConfiguration.empty(), new ServerBootstrap());
+        this(PrototexConfiguration.empty(), new ServerBootstrap());
     }
 
     public void bind() {
@@ -50,7 +54,7 @@ public class PrototexServer extends EventManager {
 
         serverBootstrap.group(bossGroup, workerGroup);
         serverBootstrap.channel(NioServerSocketChannel.class);
-        serverBootstrap.childHandler(new SocketChannelInitializer(this, configuration.getBufferSize()));
+        serverBootstrap.childHandler(new SocketChannelInitializer(this, configuration, packetRegistry));
 
         try {
             if (configuration.getHost() != null && !configuration.getHost().isEmpty()) {

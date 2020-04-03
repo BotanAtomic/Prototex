@@ -16,6 +16,8 @@ public class NetworkEvent {
 
     public static final String PACKET_RECEIVED = "packet_received";
 
+    public static final String MESSAGE_RECEIVED = "message_received";
+
     public static final String PACKET_SENT = "packet_sent";
 
 

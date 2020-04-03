@@ -13,6 +13,6 @@ public class Packet {
 
     @Override
     public String toString() {
-        return String.format("Packet(id=%d, length=%d)", id, length);
+        return String.format("(id=%d, length=%d)", id, length);
     }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 @Slf4j
 public class NativeMessageDecoder extends ByteToMessageDecoder {
 
-    private final static int DEFAULT_BUFFER_SIZE = 2048;
     private final ByteArrayOutputStream data = new ByteArrayOutputStream();
     private final int bufferSize;
     private State state;
@@ -24,7 +23,7 @@ public class NativeMessageDecoder extends ByteToMessageDecoder {
 
     public NativeMessageDecoder(int bufferSize) {
         this.state = State.INIT;
-        this.bufferSize = bufferSize <= 0 ? DEFAULT_BUFFER_SIZE : bufferSize;
+        this.bufferSize = bufferSize;
     }
 
     private void decodeId(ByteBuf in) {
@@ -36,7 +35,7 @@ public class NativeMessageDecoder extends ByteToMessageDecoder {
     }
 
     private void decodeHeader(ByteBuf in) throws Exception {
-        if (in.readableBytes() < (Integer.BYTES * 2))
+        if (in.readableBytes() < (Integer.BYTES + Byte.BYTES))
             return;
 
         PacketType packetType = PacketType.get(in.readByte());
