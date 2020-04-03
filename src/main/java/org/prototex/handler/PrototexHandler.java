@@ -1,4 +1,4 @@
-package org.prototex.codec;
+package org.prototex.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -49,6 +49,7 @@ public class PrototexHandler implements ChannelInboundHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        eventManager.emit(NetworkEvent.PACKET_RECEIVED, getSession(ctx), msg);
         log.info("Channel {}: read {}", ctx.channel().id(), msg);
     }
 

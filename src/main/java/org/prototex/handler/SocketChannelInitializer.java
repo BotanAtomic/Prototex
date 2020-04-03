@@ -4,7 +4,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.prototex.codec.PrototexHandler;
 import org.prototex.codec.NativeMessageDecoder;
 import org.prototex.event.EventManager;
 
