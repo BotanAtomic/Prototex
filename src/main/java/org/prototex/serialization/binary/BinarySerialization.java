@@ -26,13 +26,8 @@ public class BinarySerialization extends GenericPacketSerialization {
         return null;
     }
 
-    @Override
-    public Object fromPacket(Packet packet) throws Exception {
-        Object instance = clazz.newInstance();
-
-        BinaryInputStream stream = new BinaryInputStream(packet.getData());
-
-        List<BinaryField> fields = new ArrayList<>();
+    private List<MetaBinaryField> orderedBinaryFields(Object instance) throws Exception {
+        List<MetaBinaryField> fields = new ArrayList<>();
 
         for (Field field : instance.getClass().getDeclaredFields()) {
             field.setAccessible(true);
@@ -41,12 +36,20 @@ public class BinarySerialization extends GenericPacketSerialization {
                     .findAny().orElse(null);
 
             if (annotation != null)
-                fields.add(new BinaryField(field, annotation, (Integer) ReflectionUtils.getAnnotationValue(annotation)));
+                fields.add(new MetaBinaryField(field, annotation, (Integer) ReflectionUtils.getAnnotationIndex(annotation)));
         }
 
-        fields.sort(Comparator.comparingInt(BinaryField::getIndex));
+        fields.sort(Comparator.comparingInt(MetaBinaryField::getIndex));
+        return fields;
+    }
 
-        for (BinaryField field : fields) {
+    @Override
+    public Object fromPacket(Packet packet) throws Exception {
+        Object instance = clazz.newInstance();
+
+        BinaryInputStream stream = new BinaryInputStream(packet.getData());
+
+        for (MetaBinaryField field : orderedBinaryFields(instance)) {
             BinaryFieldBuilder builder = serializationConfiguration.getFieldBuilder().get(field.getAnnotation().annotationType());
             AtomicReference<Object> value = new AtomicReference<>(builder.build(instance, stream, field.getAnnotation()));
 

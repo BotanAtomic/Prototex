@@ -1,13 +1,15 @@
 package Prototex.packet;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 import org.prototex.packet.Packet;
-import org.prototex.serialization.annotations.message.JsonMessage;
-import org.prototex.serialization.annotations.PacketMapper;
 import org.prototex.packet.api.PacketInterface;
+import org.prototex.serialization.annotations.PacketMapper;
+import org.prototex.serialization.annotations.message.JsonMessage;
 import org.prototex.session.PrototexSession;
 
 @JsonMessage
+@Data
 @PacketMapper(id = 1)
 public class ChatMessage implements PacketInterface {
 
@@ -16,11 +18,6 @@ public class ChatMessage implements PacketInterface {
 
     @SerializedName("message")
     private final String message;
-
-    public ChatMessage(String name, String message) {
-        this.name = name;
-        this.message = message;
-    }
 
     @Override
     public void handle(PrototexSession session, Packet packet) {

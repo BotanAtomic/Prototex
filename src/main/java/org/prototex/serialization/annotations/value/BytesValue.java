@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface BytesValue {
 
-    int value() default 0;
+    int index() default 0;
 
     int length() default 0;
 

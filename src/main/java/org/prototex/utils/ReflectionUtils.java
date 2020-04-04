@@ -26,9 +26,9 @@ public class ReflectionUtils {
         return field.get(instance);
     }
 
-    public static Object getAnnotationValue(Annotation annotation) throws Exception {
+    public static Object getAnnotationIndex(Annotation annotation) throws Exception {
         Class<?> annotationClass = annotation.getClass();
-        return annotationClass.getDeclaredMethod("value").invoke(annotation);
+        return annotationClass.getDeclaredMethod("index").invoke(annotation);
     }
 
     public static boolean hasMethod(String methodName, Class<?> clazz, Class<?>... parameterTypes) {

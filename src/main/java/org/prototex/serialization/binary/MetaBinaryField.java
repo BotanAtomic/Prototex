@@ -6,7 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 @Data
-public class BinaryField {
+public class MetaBinaryField {
 
     private final Field field;
     private final Annotation annotation;

@@ -22,8 +22,8 @@ public class BinaryFieldBuilderRegistry extends ConcurrentHashMap<Class<? extend
     }
 
     public BinaryFieldBuilderRegistry add(Class<? extends Annotation> annotationClass, BinaryFieldBuilder builder) throws RuntimeException {
-        if (!ReflectionUtils.hasMethod("value", annotationClass))
-            throw new RuntimeException("you must implements value() on your @interface");
+        if (!ReflectionUtils.hasMethod("index", annotationClass))
+            throw new RuntimeException("you must implements index() on your @interface");
 
         super.put(annotationClass, builder);
         return this;
