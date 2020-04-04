@@ -13,34 +13,34 @@ import org.prototex.session.PrototexSession;
 @PacketMapper(id = 2)
 public class BinaryTestMessage implements PacketInterface {
 
-    @DoubleValue(4)
+    @DoubleValue(index = 4)
     private double doubleTest;
 
     @LongValue
     private long longTest;
 
-    @ShortValue(2)
+    @ShortValue(index = 2)
     private short shortValue;
 
-    @IntValue(1)
+    @IntValue(index = 1)
     private int intTest;
 
-    @ByteValue(3)
+    @ByteValue(index = 3)
     private byte byteValue;
 
-    @IntValue(7)
+    @IntValue(index = 7)
     private int bytesLength;
 
-    @FloatValue(5)
+    @FloatValue(index = 5)
     private float floatTest;
 
-    @BooleanValue(6)
+    @BooleanValue(index = 6)
     private boolean booleanTest;
 
-    @BytesValue(value = 8, fieldLength = "bytesLength")
+    @BytesValue(index = 8, fieldLength = "bytesLength")
     private String firstMessage;
 
-    @BytesValue(value = 9)
+    @BytesValue(index = 9)
     private String secondTest;
 
     @Override
