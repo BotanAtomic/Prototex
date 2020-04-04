@@ -3,6 +3,8 @@ package org.prototex.configuration;
 import lombok.Builder;
 import lombok.Data;
 
+import java.nio.charset.Charset;
+
 @Builder
 @Data
 public class PrototexConfiguration {
@@ -19,6 +21,9 @@ public class PrototexConfiguration {
 
     @Builder.Default
     private final int workerCount = 1;
+
+    @Builder.Default
+    private final Charset charset = Charset.defaultCharset();
 
     public static PrototexConfiguration empty() {
         return PrototexConfiguration.builder().build();

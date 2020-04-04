@@ -1,19 +1,16 @@
 package Prototex;
 
 import Prototex.packet.ChatMessage;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
 import org.prototex.configuration.PrototexConfiguration;
-import org.prototex.event.NetworkEvent;
-import org.prototex.server.PrototexServer;
+import org.prototex.core.PrototexServer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -28,10 +25,7 @@ class ServerTest {
                         .build()
         );
 
-        prototexServer.getPacketRegistry().register(1, ChatMessage.class);
-
-        prototexServer.on(NetworkEvent.PACKET_RECEIVED, (session, input) -> System.out.println("New incoming packet " + input));
-        prototexServer.on(NetworkEvent.CONNECTED, (session, input) -> System.out.println("New connection, session " + session.getId()));
+        prototexServer.getPacketRegistry().registerPackage(ChatMessage.class.getPackage().getName());
 
         prototexServer.bind(false);
         assertNotNull(prototexServer.getChannelFuture(), "channelHandler must not be null");
@@ -40,25 +34,48 @@ class ServerTest {
         socket.connect(new InetSocketAddress(6999));
 
         if (socket.isConnected()) {
-            sendData(socket);
+            sendJsonData(1, "Message number 1", socket);
+            sendBinaryData(2, socket);
         }
 
         while (socket.isConnected()) ;
     }
 
-    private void sendData(Socket socket) throws IOException {
+    private void sendJsonData(int id, String message, Socket socket) throws IOException {
         DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
 
-        ChatMessage message = new ChatMessage("Hello", "Botan");
-
-        String json = new GsonBuilder().create().toJson(message);
-
-        System.out.println(json);
-
-        stream.writeInt(1);//id
+        String json = new GsonBuilder().create().toJson(new ChatMessage("Botan", message));
+        stream.writeInt(id);//id
         stream.writeByte(1);//header data packer type
         stream.writeInt(json.length());//header data packer type
         socket.getOutputStream().write(json.getBytes());
+    }
+
+    private void sendBinaryData(int id, Socket socket) throws IOException {
+        DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        DataOutputStream dataStream = new DataOutputStream(byteStream);
+
+        dataStream.writeLong(1000);
+        dataStream.writeInt(2);
+        dataStream.writeShort(3);
+        dataStream.writeByte(4);
+        dataStream.writeDouble(5.5);
+        dataStream.writeFloat(6.6f);
+        dataStream.writeBoolean(true);
+
+        String firstMessage = "Hello";
+        String secondMessage = "Prototex";
+
+        dataStream.writeInt(firstMessage.length());
+        dataStream.writeBytes(firstMessage);
+
+        dataStream.writeBytes(secondMessage);
+
+        stream.writeInt(id);//id
+        stream.writeByte(1);//header data packer type
+        stream.writeInt(byteStream.size());//header data packer type
+        socket.getOutputStream().write(byteStream.toByteArray());
     }
 
 

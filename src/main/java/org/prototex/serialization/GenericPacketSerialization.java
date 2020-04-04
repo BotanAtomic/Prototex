@@ -1,4 +1,4 @@
-package org.prototex.packet.serialization;
+package org.prototex.serialization;
 
 import lombok.RequiredArgsConstructor;
 import org.prototex.packet.Packet;
@@ -8,5 +8,7 @@ public abstract class GenericPacketSerialization {
 
     protected final Class<?> clazz;
 
-    public abstract Object build(Packet packet);
+    public abstract Packet toPacket(int id, Object object) throws Exception;
+
+    public abstract Object fromPacket(Packet packet) throws Exception;
 }

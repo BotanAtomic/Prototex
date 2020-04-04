@@ -2,9 +2,9 @@ package org.prototex.exception;
 
 import org.prototex.packet.Packet;
 
-public class PrototexUnknownPacket extends PrototexException {
+public class UnknownPacketException extends PrototexException {
 
-    public PrototexUnknownPacket(Packet packet) {
+    public UnknownPacketException(Packet packet) {
         super(String.format("unknown incoming packet %s", packet));
     }
 

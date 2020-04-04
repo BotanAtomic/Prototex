@@ -1,4 +1,4 @@
-package org.prototex.server;
+package org.prototex.core;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -11,6 +11,7 @@ import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.event.EventManager;
 import org.prototex.handler.SocketChannelInitializer;
 import org.prototex.packet.PacketRegistry;
+import org.prototex.serialization.SerializationConfiguration;
 
 import java.net.InetSocketAddress;
 
@@ -23,13 +24,17 @@ public class PrototexServer extends EventManager {
 
     private final ServerBootstrap serverBootstrap;
 
-    private final PacketRegistry packetRegistry = new PacketRegistry();
+    private final SerializationConfiguration serializationConfiguration;
+
+    private final PacketRegistry packetRegistry;
 
     private ChannelFuture channelFuture;
 
-        public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
+    public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
         this.configuration = configuration;
         this.serverBootstrap = serverBootstrap;
+        this.serializationConfiguration = new SerializationConfiguration(configuration);
+        this.packetRegistry = new PacketRegistry(serializationConfiguration);
     }
 
     public PrototexServer(ServerBootstrap serverBootstrap) {
@@ -63,7 +68,8 @@ public class PrototexServer extends EventManager {
                 this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
             }
 
-            log.info("Prototex server started on port {}", ((InetSocketAddress) channelFuture.channel().localAddress()).getPort());
+            log.info("Prototex server started on port {} with {} mapped packets",
+                    ((InetSocketAddress) channelFuture.channel().localAddress()).getPort(), packetRegistry.size());
 
             if (sync)
                 channelFuture.channel().closeFuture().sync();
