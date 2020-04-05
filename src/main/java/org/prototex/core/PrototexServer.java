@@ -25,6 +25,8 @@ public class PrototexServer extends EventManager {
 
     private final PacketRegistry packetRegistry;
 
+    private InetSocketAddress address;
+
     private ChannelFuture channelFuture;
 
     public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
@@ -45,11 +47,7 @@ public class PrototexServer extends EventManager {
         this(PrototexConfiguration.empty(), new ServerBootstrap());
     }
 
-    public void bind() {
-        this.bind(true);
-    }
-
-    public void bind(boolean sync) {
+    public ChannelFuture bind() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getBossCount());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(configuration.getWorkerCount());
 
@@ -64,13 +62,13 @@ public class PrototexServer extends EventManager {
                 this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
             }
 
-            log.info("Prototex server started on port {} with {} mapped packets",
-                    ((InetSocketAddress) channelFuture.channel().localAddress()).getPort(), packetRegistry.size());
+            address = ((InetSocketAddress) channelFuture.channel().localAddress());
+            log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
 
-            if (sync)
-                channelFuture.channel().closeFuture().sync();
+            return channelFuture;
         } catch (Exception e) {
             log.error("Prototex server stopped: {}", e.getMessage());
+            return null;
         }
     }
 

@@ -1,7 +1,8 @@
-package Prototex;
+package json;
 
-import Prototex.packet.ChatMessage;
 import com.google.gson.GsonBuilder;
+import io.netty.channel.ChannelFuture;
+import json.packets.ChatMessage;
 import org.junit.jupiter.api.Test;
 import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.core.PrototexServer;
@@ -11,32 +12,29 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+class JsonTestServer {
 
-class ServerTest {
+    private final static int PORT = 6999;
 
     @Test
     public void bindServerTest() throws Exception {
         PrototexServer prototexServer = new PrototexServer(
                 PrototexConfiguration.builder()
-                        .port(6999)
                         .bufferSize(4096 * 5)
                         .build()
         );
 
-        prototexServer.getPacketRegistry().registerPackage(ChatMessage.class.getPackage().getName());
-
-        prototexServer.bind(false);
-        assertNotNull(prototexServer.getChannelFuture(), "channelHandler must not be null");
+        prototexServer.getPacketRegistry().register(ChatMessage.class);
+        ChannelFuture future = prototexServer.bind();
 
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(6999));
+        socket.connect(new InetSocketAddress(prototexServer.getAddress().getPort()));
 
         if (socket.isConnected()) {
             sendJsonData(1, "Message number 1", socket);
         }
 
-        while (socket.isConnected()) ;
+        future.channel().closeFuture().sync();
     }
 
     private void sendJsonData(int id, String message, Socket socket) throws IOException {
@@ -49,4 +47,7 @@ class ServerTest {
         socket.getOutputStream().write(json.getBytes());
     }
 
+    public String toString() {
+        return "JsonTestServer()";
+    }
 }

@@ -1,8 +1,10 @@
 package org.prototex.packet;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString(exclude = "data")
 public class Packet {
 
     private final int id;
@@ -11,8 +13,4 @@ public class Packet {
 
     private byte[] data;
 
-    @Override
-    public String toString() {
-        return String.format("(id=%d, length=%d)", id, length);
-    }
 }

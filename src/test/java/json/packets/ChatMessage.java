@@ -1,4 +1,4 @@
-package Prototex.packet;
+package json.packets;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

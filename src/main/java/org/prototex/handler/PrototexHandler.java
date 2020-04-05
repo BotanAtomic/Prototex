@@ -56,7 +56,7 @@ public class PrototexHandler implements ChannelInboundHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         PrototexSession session = getSession(ctx);
         eventManager.emit(NetworkEvent.PACKET_RECEIVED, session, msg);
-        log.info("Channel {}: read packet {}", ctx.channel().id(), msg);
+        log.info("Channel {}: read -> {}", ctx.channel().id(), msg);
 
         Optional.ofNullable(packetRegistry.handle(session, (Packet) msg))
                 .ifPresent(object -> eventManager.emit(NetworkEvent.MESSAGE_RECEIVED, session, object));

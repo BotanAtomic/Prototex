@@ -16,11 +16,9 @@ public class PrototexConfiguration {
     @Builder.Default
     private final int bufferSize = 2048;
 
-    @Builder.Default
-    private final int bossCount = 1;
+    private final int bossCount;
 
-    @Builder.Default
-    private final int workerCount = 1;
+    private final int workerCount;
 
     @Builder.Default
     private final Charset charset = Charset.defaultCharset();
