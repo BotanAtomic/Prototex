@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.core.PrototexServer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,7 +34,6 @@ class ServerTest {
 
         if (socket.isConnected()) {
             sendJsonData(1, "Message number 1", socket);
-            sendBinaryData(1, socket);
         }
 
         while (socket.isConnected()) ;
@@ -50,33 +48,5 @@ class ServerTest {
         stream.writeInt(json.length());//header data packer type
         socket.getOutputStream().write(json.getBytes());
     }
-
-    private void sendBinaryData(int id, Socket socket) throws IOException {
-        DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        DataOutputStream dataStream = new DataOutputStream(byteStream);
-
-        dataStream.writeLong(1000);
-        dataStream.writeInt(2);
-        dataStream.writeShort(3);
-        dataStream.writeByte(4);
-        dataStream.writeDouble(5.5);
-        dataStream.writeFloat(6.6f);
-        dataStream.writeBoolean(true);
-
-        String firstMessage = "Prototex";
-
-        dataStream.writeInt(firstMessage.length());
-        dataStream.writeBytes(firstMessage);
-
-        dataStream.writeLong(2000);
-        dataStream.writeLong(3000);
-
-        stream.writeInt(id);//id
-        stream.writeByte(1);//header data packer type
-        stream.writeInt(byteStream.size());//header data packer type
-        socket.getOutputStream().write(byteStream.toByteArray());
-    }
-
 
 }

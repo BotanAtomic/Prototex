@@ -53,7 +53,7 @@ public class PacketRegistry {
         }
 
         try {
-            packets.put(id, ReflectionUtils.newEmptyInstance(serializerClass));
+            packets.put(id, ReflectionUtils.newInstance(serializerClass, clazz, configuration));
         } catch (Exception e) {
             throw new PacketRegistryException(String.format("Can not create new instance of %s", serializerClass.getName()));
         }
