@@ -35,7 +35,7 @@ class ServerTest {
 
         if (socket.isConnected()) {
             sendJsonData(1, "Message number 1", socket);
-            sendBinaryData(2, socket);
+            sendBinaryData(1, socket);
         }
 
         while (socket.isConnected()) ;
@@ -64,13 +64,13 @@ class ServerTest {
         dataStream.writeFloat(6.6f);
         dataStream.writeBoolean(true);
 
-        String firstMessage = "Hello";
-        String secondMessage = "Prototex";
+        String firstMessage = "Prototex";
 
         dataStream.writeInt(firstMessage.length());
         dataStream.writeBytes(firstMessage);
 
-        dataStream.writeBytes(secondMessage);
+        dataStream.writeLong(2000);
+        dataStream.writeLong(3000);
 
         stream.writeInt(id);//id
         stream.writeByte(1);//header data packer type

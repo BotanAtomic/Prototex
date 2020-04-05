@@ -4,8 +4,10 @@ import com.google.common.reflect.ClassPath;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
@@ -17,6 +19,19 @@ public class ReflectionUtils {
                 .map(ClassPath.ClassInfo::load)
                 .filter(clazz -> clazz.isAnnotationPresent(annotationClass))
                 .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked casts")
+    public static <T> T newEmptyInstance(Class<? extends T> clazz) throws Exception {
+        for (Constructor<?> constructor : clazz.getConstructors()) {
+            Object[] parameters = new Object[constructor.getParameterTypes().length];
+            int i = 0;
+            for (Class<?> parameterType : constructor.getParameterTypes()) {
+                parameters[i++] = null;
+            }
+            return (T) constructor.newInstance(parameters);
+        }
+        return null;
     }
 
     public static Object extractField(Object instance, String fieldName) throws Exception {

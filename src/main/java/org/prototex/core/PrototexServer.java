@@ -11,7 +11,6 @@ import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.event.EventManager;
 import org.prototex.handler.SocketChannelInitializer;
 import org.prototex.packet.PacketRegistry;
-import org.prototex.serialization.SerializationConfiguration;
 
 import java.net.InetSocketAddress;
 
@@ -24,8 +23,6 @@ public class PrototexServer extends EventManager {
 
     private final ServerBootstrap serverBootstrap;
 
-    private final SerializationConfiguration serializationConfiguration;
-
     private final PacketRegistry packetRegistry;
 
     private ChannelFuture channelFuture;
@@ -33,8 +30,7 @@ public class PrototexServer extends EventManager {
     public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
         this.configuration = configuration;
         this.serverBootstrap = serverBootstrap;
-        this.serializationConfiguration = new SerializationConfiguration(configuration);
-        this.packetRegistry = new PacketRegistry(serializationConfiguration);
+        this.packetRegistry = new PacketRegistry(configuration);
     }
 
     public PrototexServer(ServerBootstrap serverBootstrap) {

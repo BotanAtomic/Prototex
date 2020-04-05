@@ -1,24 +1,25 @@
 package org.prototex.serialization.json;
 
 import com.google.gson.Gson;
-import org.prototex.configuration.PrototexConfiguration;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import org.prototex.exception.SerializationException;
 import org.prototex.packet.Packet;
 import org.prototex.serialization.GenericPacketSerialization;
 
 public class JsonSerialization extends GenericPacketSerialization {
 
-    private final PrototexConfiguration configuration;
+    private final Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
-    public JsonSerialization(Class<?> clazz, PrototexConfiguration configuration) {
+    public JsonSerialization(Class<?> clazz) {
         super(clazz);
-        this.configuration = configuration;
     }
 
     @Override
     public Packet toPacket(int id, Object object) throws Exception {
         Packet packet = new Packet(id);
 
-        byte[] data = new Gson().toJson(object).getBytes(configuration.getCharset());
+        byte[] data = gson.toJson(object).getBytes();
         packet.setLength(data.length);
         packet.setData(data);
 
@@ -27,6 +28,10 @@ public class JsonSerialization extends GenericPacketSerialization {
 
     @Override
     public Object fromPacket(Packet packet) throws Exception {
-        return new Gson().fromJson(new String(packet.getData(), configuration.getCharset()), super.clazz);
+        try {
+            return gson.fromJson(new String(packet.getData()), super.clazz);
+        } catch (JsonSyntaxException e) {
+            throw new SerializationException("invalid json input");
+        }
     }
 }

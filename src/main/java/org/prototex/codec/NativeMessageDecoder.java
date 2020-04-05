@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.extern.slf4j.Slf4j;
-import org.prototex.packet.DataPacket;
 import org.prototex.packet.Packet;
 import org.prototex.packet.PacketType;
 
@@ -42,7 +41,7 @@ public class NativeMessageDecoder extends ByteToMessageDecoder {
 
         switch (packetType) {
             case DATA:
-                packet = new DataPacket(id);
+                packet = new Packet(id);
                 packet.setLength(in.readInt());
                 remainingBytes = packet.getLength();
                 state = State.DECODING_DATA;
