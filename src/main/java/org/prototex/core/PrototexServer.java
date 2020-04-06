@@ -47,7 +47,7 @@ public class PrototexServer extends EventManager {
         this(PrototexConfiguration.empty(), new ServerBootstrap());
     }
 
-    public ChannelFuture bind() {
+    public ChannelFuture bind() throws InterruptedException {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getBossCount());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(configuration.getWorkerCount());
 
@@ -55,21 +55,15 @@ public class PrototexServer extends EventManager {
         serverBootstrap.channel(NioServerSocketChannel.class);
         serverBootstrap.childHandler(new SocketChannelInitializer(this, configuration, packetRegistry));
 
-        try {
-            if (configuration.getHost() != null && !configuration.getHost().isEmpty()) {
-                this.channelFuture = serverBootstrap.bind(configuration.getHost(), configuration.getPort()).sync();
-            } else {
-                this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
-            }
-
-            address = ((InetSocketAddress) channelFuture.channel().localAddress());
-            log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
-
-            return channelFuture;
-        } catch (Exception e) {
-            log.error("Prototex server stopped: {}", e.getMessage());
-            return null;
+        if (configuration.getHost() != null && !configuration.getHost().isEmpty()) {
+            this.channelFuture = serverBootstrap.bind(configuration.getHost(), configuration.getPort()).sync();
+        } else {
+            this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
         }
+
+        address = ((InetSocketAddress) channelFuture.channel().localAddress());
+        log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
+        return channelFuture;
     }
 
 }

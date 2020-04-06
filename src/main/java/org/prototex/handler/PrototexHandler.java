@@ -2,6 +2,7 @@ package org.prototex.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PrototexHandler implements ChannelInboundHandler {
+public class PrototexHandler extends ChannelInboundHandlerAdapter {
 
     private final static AttributeKey<PrototexSession> ATTR_SESSION = AttributeKey.newInstance("session");
 
@@ -28,7 +29,7 @@ public class PrototexHandler implements ChannelInboundHandler {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(ATTR_SESSION).set(new PrototexSession(ctx.channel().id().asLongText(), ctx.channel()));
+        ctx.channel().attr(ATTR_SESSION).set(new PrototexSession(ctx.channel()));
 
         eventManager.emit(NetworkEvent.REGISTERED, getSession(ctx));
         log.info("Channel {}: registered", ctx.channel().id());
@@ -66,26 +67,6 @@ public class PrototexHandler implements ChannelInboundHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.info("Channel {}: exception", ctx.channel().id(), cause);
         eventManager.emit(NetworkEvent.EXCEPTION, getSession(ctx), cause);
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-    }
-
-    @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
     }
 
 }

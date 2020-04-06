@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.exception.InvalidPacketException;
-import org.prototex.exception.PacketRegistryException;
+import org.prototex.exception.PacketException;
 import org.prototex.packet.api.PacketInterface;
 import org.prototex.serialization.GenericPacketSerialization;
-import org.prototex.serialization.annotations.PacketMapper;
 import org.prototex.serialization.json.JsonSerialization;
 import org.prototex.session.PrototexSession;
+import org.prototex.utils.PacketUtils;
 import org.prototex.utils.ReflectionUtils;
 
 import java.io.IOException;
@@ -33,17 +33,28 @@ public class PacketRegistry {
         return packets.size();
     }
 
-    public PacketRegistry register(Class<?> clazz) throws PacketRegistryException {
-        if (clazz.isAnnotationPresent(PacketMapper.class)) {
-            PacketMapper mapper = clazz.getAnnotation(PacketMapper.class);
-            return register(mapper.id(), clazz);
+    public PacketRegistry register(Class<?> clazz) throws PacketException {
+        int id = PacketUtils.extractId(clazz);
+        if (id != -1) {
+            return register(id, clazz);
         } else {
-            throw new PacketRegistryException("unable to determine id, class not interfaced by @PacketMapper");
+            throw new PacketException("unable to determine id, class not interfaced by @PacketMapper");
         }
     }
 
-    public PacketRegistry register(int id, Class<?> clazz) throws PacketRegistryException {
-        Class<? extends GenericPacketSerialization> serializerClass = defaultSerializer;
+    public GenericPacketSerialization getSerializer(Class<?> clazz, Class<? extends GenericPacketSerialization> serializerClass) throws PacketException {
+        if (serializerClass == null)
+            serializerClass = defaultSerializer;
+
+        try {
+            return ReflectionUtils.newInstance(serializerClass, clazz, configuration);
+        } catch (Exception e) {
+            throw new PacketException(String.format("Can not create new instance of %s", serializerClass.getName()));
+        }
+    }
+
+    public PacketRegistry register(int id, Class<?> clazz) throws PacketException {
+        Class<? extends GenericPacketSerialization> serializerClass = null;
 
         for (Annotation annotation : clazz.getAnnotations()) {
             if (serializers.containsKey(annotation.annotationType())) {
@@ -52,15 +63,11 @@ public class PacketRegistry {
             }
         }
 
-        try {
-            packets.put(id, ReflectionUtils.newInstance(serializerClass, clazz, configuration));
-        } catch (Exception e) {
-            throw new PacketRegistryException(String.format("Can not create new instance of %s", serializerClass.getName()));
-        }
+        packets.put(id, getSerializer(clazz, serializerClass));
         return this;
     }
 
-    public PacketRegistry registerPackage(String packageName) throws PacketRegistryException, IOException {
+    public PacketRegistry registerPackage(String packageName) throws PacketException, IOException {
         for (Class<?> aClass : ReflectionUtils.getAnnotatedClass(packageName, PacketMapper.class))
             register(aClass);
         return this;

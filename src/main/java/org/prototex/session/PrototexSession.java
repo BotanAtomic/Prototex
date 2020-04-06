@@ -2,6 +2,7 @@ package org.prototex.session;
 
 import com.google.common.collect.Maps;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.prototex.event.EventManager;
@@ -18,9 +19,6 @@ public class PrototexSession extends EventManager {
     private final Date connectionDate = new Date();
 
     @Getter
-    private final String id;
-
-    @Getter
     private final Channel channel;
 
     public Object getAttribute(String key) {
@@ -31,8 +29,11 @@ public class PrototexSession extends EventManager {
         attributes.put(key, value);
     }
 
-    public void write(Object message) {
-        channel.writeAndFlush(message);
+    public ChannelFuture send(Object message) {
+        return channel.writeAndFlush(message);
     }
 
+    public String getId() {
+        return channel.id().asLongText();
+    }
 }

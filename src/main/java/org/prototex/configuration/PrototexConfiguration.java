@@ -5,11 +5,12 @@ import lombok.Data;
 
 import java.nio.charset.Charset;
 
-@Builder
+@Builder()
 @Data
 public class PrototexConfiguration {
 
-    private final String host;
+    @Builder.Default
+    private final String host = "0.0.0.0";
 
     private final int port;
 

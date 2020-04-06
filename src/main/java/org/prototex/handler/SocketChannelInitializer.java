@@ -6,6 +6,8 @@ import io.netty.channel.socket.SocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.prototex.codec.NativeMessageDecoder;
+import org.prototex.codec.NativeMessageEncoder;
+import org.prototex.codec.PacketEncoder;
 import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.event.EventManager;
 import org.prototex.packet.PacketRegistry;
@@ -25,6 +27,8 @@ public class SocketChannelInitializer extends ChannelInitializer<SocketChannel> 
         ChannelPipeline pipeline = socketChannel.pipeline();
 
         pipeline.addLast(new NativeMessageDecoder(configuration.getBufferSize()));
+        pipeline.addLast(new NativeMessageEncoder());
+        pipeline.addLast(new PacketEncoder(packetRegistry));
         pipeline.addLast(new PrototexHandler(eventManager, packetRegistry));
     }
 }

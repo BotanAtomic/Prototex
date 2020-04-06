@@ -38,11 +38,11 @@ public class NativeMessageDecoder extends ByteToMessageDecoder {
             return;
 
         PacketType packetType = PacketType.get(in.readByte());
+        packet = new Packet(id, packetType);
+        packet.setLength(in.readInt());
 
         switch (packetType) {
             case DATA:
-                packet = new Packet(id);
-                packet.setLength(in.readInt());
                 remainingBytes = packet.getLength();
                 state = State.DECODING_DATA;
                 break;

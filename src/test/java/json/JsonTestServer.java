@@ -1,53 +1,46 @@
 package json;
 
-import com.google.gson.GsonBuilder;
-import io.netty.channel.ChannelFuture;
 import json.packets.ChatMessage;
-import org.junit.jupiter.api.Test;
 import org.prototex.configuration.PrototexConfiguration;
+import org.prototex.core.PrototexClient;
 import org.prototex.core.PrototexServer;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import org.prototex.session.PrototexSession;
 
 class JsonTestServer {
 
-    private final static int PORT = 6999;
+    public static void main(String[] args) throws Exception {
+        PrototexServer server = buildServer();
+        PrototexSession client = buildClient(server.getAddress().getPort());
 
-    @Test
-    public void bindServerTest() throws Exception {
-        PrototexServer prototexServer = new PrototexServer(
+        client.send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !"));
+
+        server.getChannelFuture().channel().closeFuture().sync();
+    }
+
+    private static PrototexServer buildServer() throws Exception {
+        PrototexServer server = new PrototexServer(
                 PrototexConfiguration.builder()
                         .bufferSize(4096 * 5)
                         .build()
         );
 
-        prototexServer.getPacketRegistry().register(ChatMessage.class);
-        ChannelFuture future = prototexServer.bind();
+        server.getPacketRegistry().register(ChatMessage.class);
 
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(prototexServer.getAddress().getPort()));
-
-        if (socket.isConnected()) {
-            sendJsonData(1, "Message number 1", socket);
-        }
-
-        future.channel().closeFuture().sync();
+        server.bind();
+        return server;
     }
 
-    private void sendJsonData(int id, String message, Socket socket) throws IOException {
-        DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
+    private static PrototexSession buildClient(int port) throws Exception {
+        PrototexClient client = new PrototexClient(
+                PrototexConfiguration.builder()
+                        .bufferSize(4096 * 5)
+                        .port(port)
+                        .build()
+        );
 
-        String json = new GsonBuilder().create().toJson(new ChatMessage("Botan", message));
-        stream.writeInt(id);//id
-        stream.writeByte(1);//header data packer type
-        stream.writeInt(json.length());//header data packer type
-        socket.getOutputStream().write(json.getBytes());
+        client.getPacketRegistry().register(ChatMessage.class);
+
+        return client.connect();
     }
 
-    public String toString() {
-        return "JsonTestServer()";
-    }
 }

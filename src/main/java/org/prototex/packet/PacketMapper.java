@@ -1,4 +1,4 @@
-package org.prototex.serialization.annotations.message;
+package org.prototex.packet;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface JsonMessage {
+public @interface PacketMapper {
+
+    int id();
 
 }
