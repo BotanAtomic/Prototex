@@ -1,7 +1,6 @@
 package org.prototex.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import lombok.RequiredArgsConstructor;
@@ -29,44 +28,55 @@ public class PrototexHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(ATTR_SESSION).set(new PrototexSession(ctx.channel()));
+        PrototexSession session = new PrototexSession() {{
+            setActive(ctx.channel());
+            bind(eventManager);
+        }};
 
-        eventManager.emit(NetworkEvent.REGISTERED, getSession(ctx));
+        ctx.channel().attr(ATTR_SESSION).set(session);
+
+        session.emit(NetworkEvent.REGISTERED, session);
         log.info("Channel {}: registered", ctx.channel().id());
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        eventManager.emit(NetworkEvent.UNREGISTERED, getSession(ctx));
+        PrototexSession session = getSession(ctx);
+        session.emit(NetworkEvent.UNREGISTERED, session);
         log.info("Channel {}: unregistered", ctx.channel().id());
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        eventManager.emit(NetworkEvent.CONNECTED, getSession(ctx));
+        PrototexSession session = getSession(ctx);
+        session.emit(NetworkEvent.CONNECTED, session);
         log.info("Channel {}: connected", ctx.channel().id());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        eventManager.emit(NetworkEvent.DISCONNECTED, getSession(ctx));
+        PrototexSession session = getSession(ctx);
+        session.emit(NetworkEvent.DISCONNECTED, session);
         log.info("Channel {}: inactive", ctx.channel().id());
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         PrototexSession session = getSession(ctx);
-        eventManager.emit(NetworkEvent.PACKET_RECEIVED, session, msg);
+
+        session.emit(NetworkEvent.PACKET_RECEIVED, session, msg);
         log.info("Channel {}: read -> {}", ctx.channel().id(), msg);
 
         Optional.ofNullable(packetRegistry.handle(session, (Packet) msg))
-                .ifPresent(object -> eventManager.emit(NetworkEvent.MESSAGE_RECEIVED, session, object));
+                .ifPresent(object -> session.emit(NetworkEvent.MESSAGE_RECEIVED, session, msg));
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        PrototexSession session = getSession(ctx);
+
         log.info("Channel {}: exception", ctx.channel().id(), cause);
-        eventManager.emit(NetworkEvent.EXCEPTION, getSession(ctx), cause);
+        session.emit(NetworkEvent.EXCEPTION, session, cause);
     }
 
 }

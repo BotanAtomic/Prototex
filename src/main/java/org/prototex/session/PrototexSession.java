@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFuture;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.prototex.event.EventManager;
+import org.prototex.event.NetworkEvent;
 
 import java.util.Date;
 import java.util.Map;
@@ -16,10 +17,10 @@ public class PrototexSession extends EventManager {
     private final Map<String, Object> attributes = Maps.newConcurrentMap();
 
     @Getter
-    private final Date connectionDate = new Date();
+    private Date connectionDate;
 
     @Getter
-    private final Channel channel;
+    private Channel channel;
 
     public Object getAttribute(String key) {
         return attributes.get(key);
@@ -33,7 +34,16 @@ public class PrototexSession extends EventManager {
         return channel.writeAndFlush(message);
     }
 
+    public void setActive(Channel channel) {
+        this.channel = channel;
+        this.connectionDate = new Date();
+        emit(NetworkEvent.CONNECTED, this, null);
+    }
+
     public String getId() {
-        return channel.id().asLongText();
+        if (channel != null)
+            return channel.id().asLongText();
+        else
+            return "?";
     }
 }

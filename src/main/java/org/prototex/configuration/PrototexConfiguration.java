@@ -17,6 +17,12 @@ public class PrototexConfiguration {
     @Builder.Default
     private final int bufferSize = 2048;
 
+    @Builder.Default
+    private final boolean autoReconnect = true;
+
+    @Builder.Default
+    private final int reconnectionDelay = 10000;
+
     private final int bossCount;
 
     private final int workerCount;

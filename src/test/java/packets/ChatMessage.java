@@ -1,4 +1,4 @@
-package json.packets;
+package packets;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

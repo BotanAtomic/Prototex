@@ -6,6 +6,10 @@ public class NetworkEvent {
 
     public static final String CONNECTING = "connecting";
 
+    public static final String CONNECTION_FAILED = "connection_failed";
+
+    public static final String BOUND = "bound";
+
     public static final String DISCONNECTED = "disconnected";
 
     public static final String REGISTERED = "registered";
@@ -19,7 +23,6 @@ public class NetworkEvent {
     public static final String MESSAGE_RECEIVED = "message_received";
 
     public static final String PACKET_SENT = "packet_sent";
-
 
 
 }

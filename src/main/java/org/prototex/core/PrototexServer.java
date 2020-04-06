@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.prototex.configuration.PrototexConfiguration;
 import org.prototex.event.EventManager;
+import org.prototex.event.NetworkEvent;
 import org.prototex.handler.SocketChannelInitializer;
 import org.prototex.packet.PacketRegistry;
 
@@ -47,7 +48,7 @@ public class PrototexServer extends EventManager {
         this(PrototexConfiguration.empty(), new ServerBootstrap());
     }
 
-    public ChannelFuture bind() throws InterruptedException {
+    public void bind() throws InterruptedException {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getBossCount());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(configuration.getWorkerCount());
 
@@ -61,9 +62,9 @@ public class PrototexServer extends EventManager {
             this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
         }
 
+        emit(NetworkEvent.BOUND, null, null);
         address = ((InetSocketAddress) channelFuture.channel().localAddress());
         log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
-        return channelFuture;
     }
 
 }
