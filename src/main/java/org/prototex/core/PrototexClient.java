@@ -16,6 +16,7 @@ import org.prototex.packet.PacketRegistry;
 import org.prototex.session.PrototexSession;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,9 +35,11 @@ public class PrototexClient extends EventManager {
 
     private ChannelFuture channelFuture;
 
-    private PrototexSession session = new PrototexSession();
+    private PrototexSession session;
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
+
+    private NioEventLoopGroup bossGroup;
 
     public PrototexClient(PrototexConfiguration configuration, Bootstrap bootstrap) {
         this.configuration = configuration;
@@ -58,7 +61,7 @@ public class PrototexClient extends EventManager {
 
     private void initialize() {
         if (!initialized.getAndSet(true)) {
-            NioEventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getWorkerCount());
+            bossGroup = new NioEventLoopGroup(configuration.getWorkerCount());
 
             bootstrap.group(bossGroup);
             bootstrap.channel(NioSocketChannel.class);
@@ -69,23 +72,31 @@ public class PrototexClient extends EventManager {
     public void connect() {
         initialize();
 
-        emit(NetworkEvent.CONNECTING, session);
+        emit(NetworkEvent.CONNECTING);
+
+        on(NetworkEvent.CONNECTED, (session, input) -> this.session = session);
 
         channelFuture = bootstrap.connect(configuration.getHost(), configuration.getPort()).addListener((ChannelFutureListener) future -> {
-            if (!future.isSuccess()) {
-                emit(NetworkEvent.CONNECTION_FAILED, session, future.cause());
-                if (configuration.isAutoReconnect())
-                    future.channel().eventLoop().schedule(this::connect, configuration.getReconnectionDelay(), TimeUnit.MILLISECONDS);
+            if (!future.isSuccess() && configuration.isAutoReconnect()) {
+                future.channel().eventLoop().schedule(this::connect, configuration.getReconnectionDelay(), TimeUnit.MILLISECONDS);
             } else if (future.isSuccess()) {
-                session.setActive(future.channel());
                 address = ((InetSocketAddress) channelFuture.channel().localAddress());
                 log.info("Prototex client successfully connected to {} on port {}", configuration.getHost(), configuration.getPort());
 
                 if (configuration.isAutoReconnect())
-                    on(NetworkEvent.DISCONNECTED, (session1, input) -> connect());
+                    on(NetworkEvent.DISCONNECTED, (session, input) -> connect());
             }
         });
+    }
 
+    public CompletableFuture<Boolean> close() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return bossGroup.shutdownGracefully().sync().isSuccess();
+            } catch (InterruptedException | NullPointerException e) {
+                return false;
+            }
+        });
     }
 
 }

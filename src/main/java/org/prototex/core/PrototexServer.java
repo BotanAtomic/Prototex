@@ -14,6 +14,7 @@ import org.prototex.handler.SocketChannelInitializer;
 import org.prototex.packet.PacketRegistry;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
@@ -29,6 +30,8 @@ public class PrototexServer extends EventManager {
     private InetSocketAddress address;
 
     private ChannelFuture channelFuture;
+
+    private NioEventLoopGroup bossGroup, workerGroup;
 
     public PrototexServer(PrototexConfiguration configuration, ServerBootstrap serverBootstrap) {
         this.configuration = configuration;
@@ -49,8 +52,8 @@ public class PrototexServer extends EventManager {
     }
 
     public void bind() throws InterruptedException {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(configuration.getBossCount());
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(configuration.getWorkerCount());
+        bossGroup = new NioEventLoopGroup(configuration.getBossCount());
+        workerGroup = new NioEventLoopGroup(configuration.getWorkerCount());
 
         serverBootstrap.group(bossGroup, workerGroup);
         serverBootstrap.channel(NioServerSocketChannel.class);
@@ -65,6 +68,16 @@ public class PrototexServer extends EventManager {
         emit(NetworkEvent.BOUND, null, null);
         address = ((InetSocketAddress) channelFuture.channel().localAddress());
         log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
+    }
+
+    public CompletableFuture<Boolean> close() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return bossGroup.shutdownGracefully().sync().isSuccess() && workerGroup.shutdownGracefully().sync().isSuccess();
+            } catch (InterruptedException | NullPointerException e) {
+                return false;
+            }
+        });
     }
 
 }

@@ -29,7 +29,6 @@ public class PrototexHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         PrototexSession session = new PrototexSession() {{
-            setActive(ctx.channel());
             bind(eventManager);
         }};
 
@@ -49,7 +48,7 @@ public class PrototexHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         PrototexSession session = getSession(ctx);
-        session.emit(NetworkEvent.CONNECTED, session);
+        session.setActive(ctx.channel());
         log.info("Channel {}: connected", ctx.channel().id());
     }
 
@@ -75,8 +74,12 @@ public class PrototexHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         PrototexSession session = getSession(ctx);
 
-        log.info("Channel {}: exception", ctx.channel().id(), cause);
-        session.emit(NetworkEvent.EXCEPTION, session, cause);
+        if (session.getChannel() != null) {
+            log.info("Channel {}: exception", ctx.channel().id(), cause);
+            session.emit(NetworkEvent.EXCEPTION, session, cause);
+        } else {
+            session.emit(NetworkEvent.CONNECTION_FAILED, session, cause);
+        }
     }
 
 }

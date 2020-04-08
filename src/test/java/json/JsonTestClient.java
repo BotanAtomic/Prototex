@@ -18,7 +18,10 @@ class JsonTestClient {
 
         client.on(NetworkEvent.CONNECTION_FAILED, (session, input) -> System.out.println("Connection failed " + ((Exception) input).getMessage()));
 
-        client.on(NetworkEvent.CONNECTED, (session, input) -> client.getSession().send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !")));
+        client.on(NetworkEvent.CONNECTED, (session, input) -> {
+            System.out.println("Connected !");
+            client.getSession().send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !"));
+        });
 
         client.connect();
 

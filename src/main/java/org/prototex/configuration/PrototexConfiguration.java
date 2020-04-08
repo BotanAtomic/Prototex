@@ -12,7 +12,8 @@ public class PrototexConfiguration {
     @Builder.Default
     private final String host = "0.0.0.0";
 
-    private final int port;
+    @Builder.Default
+    private final int port = 4666;
 
     @Builder.Default
     private final int bufferSize = 2048;

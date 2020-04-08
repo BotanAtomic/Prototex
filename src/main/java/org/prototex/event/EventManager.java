@@ -18,6 +18,10 @@ public class EventManager {
         this.events.get(eventName).add(event);
     }
 
+    public void emit(String eventName) {
+        emit(eventName, null, null);
+    }
+
     public void emit(String eventName, PrototexSession session) {
         emit(eventName, session, null);
     }
