@@ -4,6 +4,8 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -60,14 +62,16 @@ public class PrototexServer extends EventManager {
         serverBootstrap.childHandler(new SocketChannelInitializer(this, configuration, packetRegistry));
 
         if (configuration.getHost() != null && !configuration.getHost().isEmpty()) {
-            this.channelFuture = serverBootstrap.bind(configuration.getHost(), configuration.getPort()).sync();
+            this.channelFuture = serverBootstrap.bind(configuration.getHost(), configuration.getPort());
         } else {
-            this.channelFuture = serverBootstrap.bind(configuration.getPort()).sync();
+            this.channelFuture = serverBootstrap.bind(configuration.getPort());
         }
 
-        emit(NetworkEvent.BOUND, null, null);
-        address = ((InetSocketAddress) channelFuture.channel().localAddress());
-        log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
+        channelFuture.addListener(future -> {
+            emit(NetworkEvent.BOUND, null, null);
+            address = ((InetSocketAddress) channelFuture.channel().localAddress());
+            log.info("Prototex server started on port {} with {} mapped packets", address.getPort(), packetRegistry.size());
+        });
     }
 
     public CompletableFuture<Boolean> close() {

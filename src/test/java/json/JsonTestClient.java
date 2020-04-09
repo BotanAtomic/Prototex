@@ -28,7 +28,6 @@ class JsonTestClient {
         client.on(NetworkEvent.MESSAGE_SENT, (session, input) -> System.out.println("Send " + input.getClass()));
 
         client.connect();
-
         client.getChannelFuture().channel().closeFuture().sync();
     }
 
