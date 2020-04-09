@@ -16,6 +16,7 @@ import org.prototex.utils.ReflectionUtils;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Data
@@ -34,9 +35,9 @@ public class PacketRegistry {
     }
 
     public PacketRegistry register(Class<?> clazz) throws PacketException {
-        int id = PacketUtils.extractId(clazz);
-        if (id != -1) {
-            return register(id, clazz);
+        Optional<Integer> optionalId = PacketUtils.extractId(clazz);
+        if (optionalId.isPresent()) {
+            return register(optionalId.get(), clazz);
         } else {
             throw new PacketException("unable to determine id, class not interfaced by @PacketMapper");
         }

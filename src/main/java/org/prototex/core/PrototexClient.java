@@ -74,7 +74,7 @@ public class PrototexClient extends EventManager {
 
         emit(NetworkEvent.CONNECTING);
 
-        on(NetworkEvent.CONNECTED, (session, input) -> this.session = session);
+        on(NetworkEvent.REGISTERED, (session, input) -> this.session = session);
 
         channelFuture = bootstrap.connect(configuration.getHost(), configuration.getPort()).addListener((ChannelFutureListener) future -> {
             if (!future.isSuccess() && configuration.isAutoReconnect()) {

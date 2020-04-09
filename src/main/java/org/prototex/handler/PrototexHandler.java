@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PrototexHandler extends ChannelInboundHandlerAdapter {
 
-    private final static AttributeKey<PrototexSession> ATTR_SESSION = AttributeKey.newInstance("session");
+    public final static AttributeKey<PrototexSession> ATTR_SESSION = AttributeKey.newInstance("session");
 
     private final EventManager eventManager;
     private final PacketRegistry packetRegistry;

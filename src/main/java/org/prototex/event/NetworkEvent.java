@@ -24,5 +24,6 @@ public class NetworkEvent {
 
     public static final String PACKET_SENT = "packet_sent";
 
+    public static final String MESSAGE_SENT = "message_sent";
 
 }
