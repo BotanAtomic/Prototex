@@ -39,26 +39,4 @@ public class ReflectionUtils {
         return null;
     }
 
-    public static Object extractField(Object instance, String fieldName) throws Exception {
-        Field field = instance.getClass().getDeclaredField(fieldName);
-        if (!field.isAccessible())
-            field.setAccessible(true);
-        return field.get(instance);
-    }
-
-    public static Object getAnnotationIndex(Annotation annotation) throws Exception {
-        Class<?> annotationClass = annotation.getClass();
-        return annotationClass.getDeclaredMethod("index").invoke(annotation);
-    }
-
-    public static boolean hasMethod(String methodName, Class<?> clazz, Class<?>... parameterTypes) {
-        try {
-            clazz.getDeclaredMethod(methodName, parameterTypes);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
-
 }
