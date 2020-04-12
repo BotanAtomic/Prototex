@@ -22,7 +22,7 @@ class JsonTestClient {
         client.on(NetworkEvent.CONNECTED, (session, input) -> {
             System.out.println("Connected to server !");
             session.send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !"));
-            session.send(Packet.dataPacket(1, "{ \"name\": \"Client\",\"message\": \"Second message\"  }".getBytes()));
+            session.send(Packet.data(1, "{ \"name\": \"Client\",\"message\": \"Second message\"  }".getBytes()));
         });
 
         client.on(NetworkEvent.MESSAGE_SENT, (session, input) -> System.out.println("Send " + input.getClass()));

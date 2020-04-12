@@ -40,6 +40,12 @@ public class PrototexSession extends EventManager {
         emit(NetworkEvent.CONNECTED, this, null);
     }
 
+    public ChannelFuture disconnect() {
+        if (channel != null)
+            return channel.close();
+        return null;
+    }
+
     public String getId() {
         if (channel != null)
             return channel.id().asLongText();

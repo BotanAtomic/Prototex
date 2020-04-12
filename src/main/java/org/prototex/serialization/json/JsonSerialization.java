@@ -21,7 +21,7 @@ public class JsonSerialization extends GenericPacketSerialization {
     @Override
     public Packet toPacket(int id, Object object) throws Exception {
         try {
-            return Packet.dataPacket(id, gson.toJson(object).getBytes(configuration.getCharset()));
+            return Packet.data(id, gson.toJson(object).getBytes(configuration.getCharset()));
         } catch (JsonSyntaxException e) {
             throw new SerializationException(String.format("cannot convert %s to json output", object.getClass()));
         }

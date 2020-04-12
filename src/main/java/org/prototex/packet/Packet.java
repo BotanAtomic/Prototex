@@ -15,7 +15,7 @@ public class Packet {
 
     private byte[] data;
 
-    public static Packet dataPacket(int id, byte[] data) {
+    public static Packet data(int id, byte[] data) {
         return new Packet(id, PacketType.DATA) {{
             setLength(data.length);
             setData(data);

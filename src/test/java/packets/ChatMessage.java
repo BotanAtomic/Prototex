@@ -25,7 +25,7 @@ public class ChatMessage implements PacketInterface {
 
     @Override
     public void handle(PrototexSession session, Packet packet) {
-        System.out.println("Receive " + this);
+        System.out.println("Receive new ChatMessage " + this);
         try {
             Thread.sleep(1000); //delay simulation
         } catch (InterruptedException e) {
