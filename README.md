@@ -43,6 +43,13 @@ client.on(NetworkEvent.CONNECTED, (session, input) ->
 ```
 
 #### Native packet registry
+
+By default, the program use **JSON** for communication.
+
+You can define your own _**packet**_, and interface then by @PacketMapper.
+
+_Note: @JsonMessage is not necessary because it is used by default_
+
 ```java
 client.getPacketRegistry().register(ChatMessage.class);
 
@@ -62,4 +69,9 @@ class ChatMessage implements PacketInterface {
     }
 
 }
+```
+
+Register an entire package
+```java
+client.getPacketRegistry().registerPackage("my.example.package");
 ```
