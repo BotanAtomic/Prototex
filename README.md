@@ -38,7 +38,8 @@ client.on(NetworkEvent.DISCONNECTED, (session, input) -> /* … */);
 client.on(NetworkEvent.CONNECTION_FAILED, (session, exception) -> /* … */);
 
 client.on(NetworkEvent.CONNECTED, (session, input) -> 
-    session.send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !"))
+    session.send(new ChatMessage("Client", "First message"))
+           .addListener(future -> System.out.println("First message sent !"))
 );
 ```
 
