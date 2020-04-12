@@ -9,8 +9,6 @@ It works on every platform or device, focusing equally on security, reliability 
 
 #### Simple and convenient API
 
-Sample code:
-
 Client side:
 ```java
 PrototexClient client = new PrototexClient(PrototexConfiguration.builder().port(6999).build());
