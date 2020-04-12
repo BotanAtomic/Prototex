@@ -28,3 +28,38 @@ A disconnected client can try to reconnect forever, until the server is availabl
 ```java
 PrototexConfiguration.builder().port(6999).autoReconnect(true).build();
 ```
+
+#### Event-driven support
+```java
+client.on(NetworkEvent.CONNECTING, (session, input) -> /* … */);
+
+client.on(NetworkEvent.DISCONNECTED, (session, input) -> /* … */);
+
+client.on(NetworkEvent.CONNECTION_FAILED, (session, exception) -> /* … */);
+
+client.on(NetworkEvent.CONNECTED, (session, input) -> 
+    session.send(new ChatMessage("Client", "First message")).addListener(future -> System.out.println("First message sent !"))
+);
+```
+
+#### Netive packet registery
+```java
+client.getPacketRegistry().register(ChatMessage.class);
+
+@JsonMessage
+@PacketMapper(id = 1)
+class ChatMessage implements PacketInterface {
+
+    @SerializedName("name")
+    private final String name;
+
+    @SerializedName("message")
+    private final String message;
+
+    @Override
+    public void handle(PrototexSession session, Packet packet) {
+        session.send(new ChatClient("John doe", "My response !"));
+    }
+
+}
+```
