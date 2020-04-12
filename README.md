@@ -42,7 +42,7 @@ client.on(NetworkEvent.CONNECTED, (session, input) ->
 );
 ```
 
-#### Netive packet registery
+#### Native packet registery
 ```java
 client.getPacketRegistry().register(ChatMessage.class);
 
