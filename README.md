@@ -76,3 +76,8 @@ Register an entire package
 ```java
 client.getPacketRegistry().registerPackage("my.example.package");
 ```
+
+#### Custom serialization
+
+//TODO
+
